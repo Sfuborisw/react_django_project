@@ -1,0 +1,20 @@
+.DS_Store
+
+# Python/Django
+*.pyc
+__pycache__/
+myvenv/
+*.sqlite3
+*.pyo
+*.egg-info/
+dist/
+build/
+*.egg-info
+*.egg
+
+# React
+node_modules/
+/build
+.env
+
+
