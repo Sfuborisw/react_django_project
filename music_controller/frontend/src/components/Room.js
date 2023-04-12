@@ -1,17 +1,34 @@
 import React, { useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
+import {
+  Grid,
+  Button,
+  Typography,
+  TextField,
+  ButtonGroup,
+} from "@material-ui/core";
+import CreateRoomPage from "./CreateRoomPage";
 
-const Room = () => {
+const Room = (props) => {
   const { roomCode } = useParams();
   const [state, setState] = React.useState({
     votesToSkip: 2,
     guestCanPause: false,
     isHost: false,
+    showSettings: false,
   });
+
+  const navigate = useNavigate();
 
   const getRoomDetails = () => {
     fetch("/api/get-room" + "?code=" + roomCode)
-      .then((response) => response.json())
+      .then((response) => {
+        if (!response.ok) {
+          props.leaveRoomCallBack();
+          navigate("/");
+        }
+        return response.json();
+      })
       .then((data) => {
         setState({
           votesToSkip: data.votes_to_skip,
@@ -21,22 +38,105 @@ const Room = () => {
       });
   };
 
+  const leaveButtonPress = () => {
+    const requestOptions = {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+    };
+    fetch("/api/leave-room", requestOptions).then((response) => {
+      props.leaveRoomCallBack();
+      navigate("/");
+    });
+  };
+
+  const updateShowSettings = (value) => {
+    setState({
+      ...state,
+      showSettings: value,
+    });
+  };
+
+  const renderShowSettingsButton = () => (
+    <Grid item xs={12} align="center">
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={() => updateShowSettings(true)}
+      >
+        Settings
+      </Button>
+    </Grid>
+  );
+
+  const renderSetting = () => (
+    <Grid container spacing={1}>
+      <Grid item xs={12} align="center">
+        <CreateRoomPage
+          update={true}
+          votesToSkip={state.votesToSkip}
+          guestCanPause={state.guestCanPause}
+          roomCode={roomCode}
+          updateCallBack={ getRoomDetails }
+        />
+      </Grid>
+      <Grid item xs={12} align="center">
+        <Button variant="contained" color="secondary" onClick={() => updateShowSettings(false)} >
+          Close
+        </Button>
+      </Grid>
+    </Grid>
+  );
+
   useEffect(() => {
     getRoomDetails();
   }, [roomCode]);
 
-  return (
-    <div>
-      <h3>{roomCode}</h3>
-      <p>Votes: {state.votesToSkip}</p>
-      <p>Guest Can Pause: {state.guestCanPause ? "True" : "False"}</p>
-      <p>Host: {state.isHost ? "True" : "False"}</p>
-    </div>
+  return state.showSettings ? renderSetting() :(
+    <Grid container spacing={1}>
+      <Grid item xs={12} align="center">
+        <Typography component="h4" variant="h4">
+          Code: {roomCode}
+        </Typography>
+      </Grid>
+      <Grid item xs={12} align="center">
+        <Typography component="h6" variant="h6">
+          Votes: {state.votesToSkip}
+        </Typography>
+      </Grid>
+      <Grid item xs={12} align="center">
+        <Typography component="h6" variant="h6">
+          Guest Can Pause: {state.guestCanPause ? "True" : "False"}
+        </Typography>
+      </Grid>
+      <Grid item xs={12} align="center">
+        <Typography component="h6" variant="h6">
+          Host: {state.isHost ? "True" : "False"}
+        </Typography>
+      </Grid>
+      {state.isHost ? renderShowSettingsButton() : null}
+      <Grid item xs={12} align="center">
+        <Button
+          variant="contained"
+          color="secondary"
+          onClick={leaveButtonPress}
+        >
+          Leave Room
+        </Button>
+      </Grid>
+    </Grid> 
   );
 };
 
 export default Room;
 
+// {
+/* <div>
+<h3>{roomCode}</h3>
+<p>Votes: {state.votesToSkip}</p>
+<p>Guest Can Pause: {state.guestCanPause ? "True" : "False"}</p>
+<p>Host: {state.isHost ? "True" : "False"}</p>
+</div> */
+// }
 // export default class Room extends Component {
 //   constructor(props) {
 //     super(props);

@@ -12,9 +12,7 @@ export default class App extends Component {
 
     render() {
         return (
-            <div> { <HomePage/> } </div>
-            // <div> { <RoomJoinPage/> } {<HomePage/>} </div>
-            // <div><h1>This is app page</h1></div>
+            <div className='center'> { <HomePage/> } </div>
         );
     }
 }
