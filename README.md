@@ -13,6 +13,10 @@ To start the web server you need to run the following sequence of commands.
 ```bash 
 cd "music_controller"
 ```
+Before running the server.
+```bash
+python manage.py migrate
+```
 Next run the django web server.
 ```bash
 python3 manage.py runserver
