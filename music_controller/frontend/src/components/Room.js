@@ -47,6 +47,7 @@ const Room = (props) => {
     fetch("/spotify/is-authenticated")
       .then((response) => response.json())
       .then((data) => {
+        console.log(data)
         setState({
           ...state,
           spotifyAuthenticated: data.state,
@@ -55,7 +56,9 @@ const Room = (props) => {
           fetch("/spotify/get-auth-url")
             .then((response) => response.json())
             .then((data) => {
-              window.location.replace(data.url);
+              if(window.confirm('redirecting')) {
+                window.location.replace(data.url);
+              }
             });
         }
       });

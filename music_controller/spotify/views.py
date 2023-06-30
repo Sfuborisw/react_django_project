@@ -7,12 +7,12 @@ from rest_framework.response import Response
 from .util import update_or_create_user_tokens, is_spotify_authenticated
 
 class AuthURL(APIView):
-    def get(self, request, fronat=None):
+    def get(self, request, fromat=None):
         scopes = 'user-read-playback-state user-modify-playback-state user-read-currently-playing'
 
-        url = Request('GET', 'https://accounts.spotify.com/authorize', parama={
+        url = Request('GET', 'https://accounts.spotify.com/authorize', params={
             'scope': scopes,
-            'reponse_type': 'code',
+            'response_type': 'code',
             'redirect_uri': REDIRECT_URI,
             'client_id': CLIENT_ID
         }).prepare().url
