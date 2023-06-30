@@ -16,6 +16,7 @@ const Room = (props) => {
     guestCanPause: false,
     isHost: false,
     showSettings: false,
+    spotifyAuthenticated: false,
   });
 
   const navigate = useNavigate();
@@ -35,6 +36,28 @@ const Room = (props) => {
           guestCanPause: data.guest_can_pause,
           isHost: data.is_host,
         });
+        if (state.isHost) {
+          console.log("isHost");
+          authenticatespotify();
+        }
+      });
+  };
+
+  const authenticatespotify = () => {
+    fetch("/spotify/is-authenticated")
+      .then((response) => response.json())
+      .then((data) => {
+        setState({
+          ...state,
+          spotifyAuthenticated: data.state,
+        });
+        if (!data.status) {
+          fetch("/spotify/get-auth-url")
+            .then((response) => response.json())
+            .then((data) => {
+              window.location.replace(data.url);
+            });
+        }
       });
   };
 
@@ -76,11 +99,15 @@ const Room = (props) => {
           votesToSkip={state.votesToSkip}
           guestCanPause={state.guestCanPause}
           roomCode={roomCode}
-          updateCallBack={ getRoomDetails }
+          updateCallBack={getRoomDetails}
         />
       </Grid>
       <Grid item xs={12} align="center">
-        <Button variant="contained" color="secondary" onClick={() => updateShowSettings(false)} >
+        <Button
+          variant="contained"
+          color="secondary"
+          onClick={() => updateShowSettings(false)}
+        >
           Close
         </Button>
       </Grid>
@@ -91,7 +118,9 @@ const Room = (props) => {
     getRoomDetails();
   }, [roomCode]);
 
-  return state.showSettings ? renderSetting() :(
+  return state.showSettings ? (
+    renderSetting()
+  ) : (
     <Grid container spacing={1}>
       <Grid item xs={12} align="center">
         <Typography component="h4" variant="h4">
@@ -123,7 +152,7 @@ const Room = (props) => {
           Leave Room
         </Button>
       </Grid>
-    </Grid> 
+    </Grid>
   );
 };
 
